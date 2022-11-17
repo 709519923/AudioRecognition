@@ -43,6 +43,7 @@
 
 import logging
 import os
+import time
 from pathlib import Path
 from keras.models import Sequential
 from keras.layers import LSTM
@@ -52,6 +53,8 @@ from keras.optimizers import Adam
 from GenreFeatureData import (
     GenreFeatureData,
 )  # local python class with Audio feature extraction (librosa)
+
+start = time.time()
 
 # set logging level
 logging.getLogger("tensorflow").setLevel(logging.ERROR)
@@ -85,7 +88,7 @@ print("Build LSTM RNN model ...")
 model = Sequential()
 
 model.add(LSTM(units=128, dropout=0.05, recurrent_dropout=0.35, return_sequences=True, input_shape=input_shape))
-model.add(LSTM(units=32,  dropout=0.05, recurrent_dropout=0.35, return_sequences=False))
+model.add(LSTM(units=14,  dropout=0.05, recurrent_dropout=0.35, return_sequences=False))
 model.add(Dense(units=genre_features.train_Y.shape[1], activation="softmax"))
 
 print("Compiling ...")
@@ -132,3 +135,5 @@ model_json = model.to_json()
 f = Path("./lstm_genre_classifier_lstm.json")
 f.write_text(model_json)
 
+end = time.time()
+print("execution time: " + str(end - start))

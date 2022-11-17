@@ -1,59 +1,68 @@
-## Music Genre Classification with LSTMs
+## Report LSTM Model for Audio Recognition
 
- * Classify music files based on genre from the GTZAN music corpus
- * GTZAN corpus is included for easy of use
- * Use multiple layers of LSTM Recurrent Neural Nets
- * Implementations in PyTorch, [PyTorch-Lightning](https://github.com/PyTorchLightning/pytorch-lightning), Keras
+When I first change the code and run it successfully, the result shown as following:
+
+Epoch = 400, training on
+**Hardware:** Lenovo Thinkpad Gen5 without GPU
+**Software:** Windows 10
+**Python:** 3.9
+**Date:** Nov 2022
+
+---
+
+**Training time**: 204s **Model size**:1260KB
+
+|            | **Loss** | **Accuracy** |
+| ---------- | -------- | ------------ |
+| Training   | `0.03`   | `1.00`       |
+| Validation | `0.07`   | `1.00`       |
+| Testing    | `0.36`   | `0.92`       |
+
+Saying that the accuracy is good enough for most recognition. Even overfitting may occur. Training time is not long because the amount of data is not big.
+Later, I try to improve my model. Knowing that we can add more hidden layer and some features may be useless in the recognition, I took 2 actions:
+
+- A 33-unit LSTM layer would be added for imporving accuracy
+  **Training time**: 281s **Model size**:1384KB
+  | | **Loss** | **Accuracy** |
+  | ----- | ---- | ----- |
+  | Training | `0.05` | `1.00` |
+  | Validation | `0.23` | `0.88` |
+  | Testing | `0.06` | `1.00` |
+- LSTM's units are set as 14 (just extract MFCC features) to decrease parameters.
+  **Training time**: 261s **Model size**:996KB (less parameters)
+  | | **Loss** | **Accuracy** |
+  | ----- | ---- | ----- |
+  | Training | `0.01` | `1.00` |
+  | Validation | `0.08` | `0.92` |
+  | Testing | `0.01` | `1.00` |
+
+### Conclusion
+
+Adding a layer in the model seems doesn't work. It takes higher value in loss function in 400 epochs. So sometimes more layer shows worse performance cause it's hard to be trained perfectly.
+On the other hand, decreasing features can speed up model training. During the training, I find that training is actually done in 250th epoch. Also, less parameters cause less memory use.
+As for training time, it's hard to measure which is better because the difference isn't obvious.
+
+---
 
 ### Test trained LSTM model
- In the `./weights/` you can find trained model weights and model architecture.
 
- To test the model on your custom audio file, run
+In the `./weights/` you can find 3 trained models weights and model architectures.
 
-     python3 predict_example.py path/to/custom/file.mp3
- or to test the model on our custom files, run
+```
+lstm_genre_classifier_lstm.h5
+lstm_genre_classifier_lstm_addLayer.h5
+lstm_genre_classifier_lstm_decrease_feature.h5
+lstm_genre_classifier_lstm.json
+lstm_genre_classifier_lstm_addLayer.json
+lstm_genre_classifier_lstm_decrease_feature.json
+```
 
-     python3 predict_example.py audio/classical_music.mp3
+To test the model on your custom audio file, run
 
-### Audio features extracted
- * [MFCC](https://en.wikipedia.org/wiki/Mel-frequency_cepstrum)
- * [Spectral Centroid](https://en.wikipedia.org/wiki/Spectral_centroid)
- * [Chroma](http://labrosa.ee.columbia.edu/matlab/chroma-ansyn/)
- * [Spectral Contrast](http://ieeexplore.ieee.org/document/1035731/)
+     python3 predict_example.py path/to/custom/file.au
 
-### Dependencies
- * [Python3](https://www.anaconda.com/distribution/#download-section)
- * [numpy](https://numpy.org)
- * [librosa](https://librosa.github.io/librosa) &rarr; for audio feature extraction
- * [Keras](https://keras.io)
-    * `pip install keras`
- * [PyTorch](http://pytorch.org)
-    * `pip install torch torchvision`
-    * `brew install libomp` 
+or to test the model on our custom files, run
 
-### Ideas for improving accuracy:
- * [GTZAN dataset has problems](https://arxiv.org/abs/1306.1461), how do we use it with consideration?
- * Normalize MFCCs & other input features ([Recurrent BatchNorm](https://arxiv.org/pdf/1603.09025v4.pdf)?)
- * Decay learning rate
- * How are we initing the weights?
- * Better optimization hyperparameters (too little dropout)
- * Do you have avoidable bias? How's your variance?
+     python3 predict_example.py audio/James.021.au
 
-### Accuracy
-
- At Epoch 400, training on a TITAN X GPU (October 2017):
-
-|  | **Loss**  | **Accuracy** | 
-| ----- | ---- | ----- |
-| Training   | `0.5801`          | `0.7810`        |
-| Validation | `0.734523485104`  | `0.766666688025` |
-| Testing    | `0.900845060746`  | `0.683333342274` |
-
-
- At Epoch 400, training on a 2018 Macbook Pro CPU (May 2019):
-
-|  | **Loss**  | **Accuracy** | 
-| ----- | ---- | ----- |
-| Training   | `0.3486`          | `0.8738`        |
-| Validation | `1.028421084086`  | `0.700000017881` |
-| Testing    | `1.209656755129`  | `0.683333347241` |
+if you want to test the model that has decreased feature, you need to change the shape of test data to (128,14) in `predict_example.py`
