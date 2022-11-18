@@ -1,6 +1,6 @@
 ## Report：LSTM Model for Audio Recognition
 
-When I first change the code and run it successfully, the result shown as following:
+When I firstly change the code and run it successfully, the result was shown as following:
 
 Epoch = 400, training on
 **Hardware:** Lenovo Thinkpad Gen5 without GPU
@@ -19,22 +19,59 @@ Epoch = 400, training on
 | Testing    | `0.36`   | `0.92`       |
 
 Saying that the accuracy is good enough for most recognition. Even overfitting may occur. Training time is not long because the amount of data is not big.
-Later, I try to improve my model. Knowing that we can add more hidden layer and some features may be useless in the recognition, I took 2 actions:
+Later, I try to improve my model. Knowing that we can add more hidden layer and some features may be useless in the recognition, I took two actions:
 
-- A 33-unit LSTM layer would be added for imporving accuracy
-  **Training time**: 281s **Model size**:1384KB
-  | | **Loss** | **Accuracy** |
-  | ----- | ---- | ----- |
-  | Training | `0.05` | `1.00` |
-  | Validation | `0.23` | `0.88` |
-  | Testing | `0.06` | `1.00` |
+- A 33-unit LSTM layer is added for imporving accuracy
+
+```
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #
+=================================================================
+ lstm_2 (LSTM)               (None, 128, 128)          73216
+
+ lstm_3 (LSTM)               (None, 128, 33)           21384
+
+ lstm_4 (LSTM)               (None, 33)                8844
+
+ dense_1 (Dense)             (None, 5)                 170
+
+=================================================================
+Total params: 103,614
+Trainable params: 103,614
+Non-trainable params: 0
+```
+
+**Training time**: 281s **Model size**:1384KB
+| | **Loss** | **Accuracy** |
+| ----- | ---- | ----- |
+| Training | `0.05` | `1.00` |
+| Validation | `0.23` | `0.88` |
+| Testing | `0.06` | `1.00` |
+
 - LSTM's units are set as 14 (just extract MFCC features) to decrease parameters.
-  **Training time**: 261s **Model size**:996KB (less parameters)
-  | | **Loss** | **Accuracy** |
-  | ----- | ---- | ----- |
-  | Training | `0.01` | `1.00` |
-  | Validation | `0.08` | `0.92` |
-  | Testing | `0.01` | `1.00` |
+
+```
+_________________________________________________________________
+ Layer (type)                Output Shape              Param #
+=================================================================
+ lstm (LSTM)                 (None, 128, 128)          73216
+
+ lstm_1 (LSTM)               (None, 14)                8008
+
+ dense (Dense)               (None, 5)                 75
+
+=================================================================
+Total params: 81,299
+Trainable params: 81,299
+Non-trainable params: 0
+```
+
+**Training time**: 261s **Model size**:996KB (less parameters)
+| | **Loss** | **Accuracy** |
+| ----- | ---- | ----- |
+| Training | `0.01` | `1.00` |
+| Validation | `0.08` | `0.92` |
+| Testing | `0.01` | `1.00` |
 
 ### Conclusion
 
@@ -65,4 +102,4 @@ or to test the model on our custom files, run
 
      python3 predict_example.py audio/James.021.au
 
-if you want to test the model that has decreased feature, you need to change the shape of test data to (128,14) in `predict_example.py`
+:heavy_exclamation_mark: If you want to test the model that has decreased feature, you need to change the shape of test data to (128,14) in `predict_example.py`
